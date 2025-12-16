@@ -1,0 +1,92 @@
+# 4. PLOT INTO A TAB
+# ============================================================
+
+def build_tab(tab_frame, sig_id):
+	# --- Prepare figure ---
+	fig = Figure(figsize=(8, 6))
+
+	ax1 = fig.add_subplot(2, 2, 1)
+	ax2 = fig.add_subplot(2, 2, 2)
+	ax3 = fig.add_subplot(2, 2, 3)
+	ax4 = fig.add_subplot(2, 2, 4)
+
+    # ---------------------------------------------------------
+    # ORIGINAL SIGNAL
+    # ---------------------------------------------------------
+	t, x = generate_continuous_signal(sig_id)
+	ax1.plot(t*1000, x)  # ms
+	ax1.set_title("Original signal x(t)")
+	ax1.set_ylabel("Amplitude")
+	ax1.set_ylim(1.2 * x.min(), 1.2 * x.max())
+
+    # ---------------------------------------------------------
+    # CONTINUOUS SPECTRUM (ARROWS)
+    # ---------------------------------------------------------
+	base = get_frequencies(sig_id)
+	f0 = [f for (f, a) in base]
+	a0 = [a for (f, a) in base]
+
+	ax2.stem(f0, a0)
+	ax2.set_title("Spectrum of x(t)")
+	ax2.set_ylabel("Amplitude")
+	ax2.set_ylim(0, 1.2 * 4)
+	ax2.set_xlim(0, 8000)
+
+    # ---------------------------------------------------------
+    # SAMPLED SPECTRUM (REPLICATED)
+    # ---------------------------------------------------------
+	if sig_id == 4:
+		fmax = 40000
+	else:
+		fmax = 20000
+
+	frep, arep = spectrum_sampled(sig_id, 8000, fmax)
+
+	ax3.stem(frep, arep)
+	ax3.set_xlim(0, fmax)
+	ax3.set_title("Spectrum of sampled signal")
+	ax3.set_ylabel("Amplitude")
+	ax3.set_ylim(0, 1.2 * 4)
+
+    # ---------------------------------------------------------
+    # FILTER
+    # ---------------------------------------------------------
+	fc = get_max_frequency(sig_id) * 1.1
+
+	f_filt, a_filt = ideal_lowpass(frep, arep, fc)
+
+	ax4.stem(f_filt, a_filt)
+	ax4.set_xlim(0, fmax)
+	ax4.set_ylim(0, 1.2 * 4)
+	ax4.set_title("After ideal LPF (reconstruction)")
+	ax4.set_ylabel("Amplitude")
+    # ---------------------------------------------------------
+	canvas = FigureCanvasTkAgg(fig, master=tab_frame)
+	canvas.draw()
+	canvas.get_tk_widget().pack(fill="both", expand=True)
+
+
+
+# ============================================================
+# 5. TKINTER GUI
+# ============================================================
+
+root = tk.Tk()
+root.title("Signal Spectrum Viewer")
+root.geometry("1000x700")
+
+notebook = ttk.Notebook(root)
+notebook.pack(fill="both", expand=True)
+
+tabs = []
+for i in range(4):
+    frame = ttk.Frame(notebook)
+    notebook.add(frame, text="Signal %d" % (i+1))
+    tabs.append(frame)
+
+# Build tabs
+for i in range(4):
+    build_tab(tabs[i], i+1)
+
+
+root.mainloop()

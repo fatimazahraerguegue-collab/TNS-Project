@@ -1,0 +1,63 @@
+# 3. ANALYTICAL SPECTRA (ARROWS)
+# ============================================================
+
+def get_frequencies(sig_id):
+    if sig_id == 1:
+        return [(1000, 5/2.0)]
+
+    elif sig_id == 2:
+        return [(2000, 5/2.0), (3000, 3/2.0)]
+
+    elif sig_id == 3:
+        return [(2000, 5/2.0), (5000, 1/2.0)]
+
+    else:
+        return [(0, 1.0), (2000, 1/2.0), (4000, 2/2.0), (6000, 3/2.0)]
+
+
+def spectrum_sampled(sig_id, fs, fmax):
+    """Replicate spectrum every fs with proper amplitude summation."""
+    base = get_frequencies(sig_id)
+    # Use dictionary to accumulate amplitudes
+    freq_dict = {}
+    
+    kmax = int(fmax / fs) + 2
+    
+    for k in range(-kmax, kmax+1):
+        for (f, a) in base:
+            f_rep = f + k * fs
+            
+            # Handle negative frequencies (mirror to positive)
+            if f_rep < 0:
+                f_rep = abs(f_rep)
+            
+            if 0 <= f_rep <= fmax:
+                # Accumulate amplitude if frequency already exists
+                if f_rep in freq_dict:
+                    freq_dict[f_rep] += a
+                else:
+                    freq_dict[f_rep] = a
+    
+    # Convert to lists
+    freqs = list(freq_dict.keys())
+    amps = list(freq_dict.values())
+    
+    return freqs, amps
+
+def ideal_lowpass(freqs, amps, fc):
+	"""Ideal LPF applied to spectral lines."""
+	f_out = []
+	a_out = []
+
+	for f, a in zip(freqs, amps):
+		if abs(f) <= fc:
+			f_out.append(f)
+			a_out.append(a)
+
+	return f_out, a_out
+
+def get_max_frequency(sig_id):
+	base = get_frequencies(sig_id)
+	return max(abs(f) for f, _ in base)
+
+# 

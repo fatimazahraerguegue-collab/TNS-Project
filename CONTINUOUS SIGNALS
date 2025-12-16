@@ -1,0 +1,35 @@
+# -- coding: utf-8 --
+import tkinter as tk
+from tkinter import ttk
+import numpy as np
+
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+# ============================================================
+# 1. CONTINUOUS SIGNALS
+# ============================================================
+
+def generate_continuous_signal(sig_id):
+    duration = 0.005      # 5 ms
+    dt = 1e-6             # 1 MHz resolution
+    t = np.arange(0, duration, dt)
+
+    if sig_id == 1:
+        x = 5*np.cos(2*np.pi*1000*t)
+
+    elif sig_id == 2:
+        x = 5*np.cos(2*np.pi*2000*t) + 3*np.cos(2*np.pi*3000*t)
+
+    elif sig_id == 3:
+        x = 5*np.cos(2*np.pi*2000*t) + 1*np.cos(2*np.pi*5000*t)
+
+    else:
+        x = 1 + np.cos(2*np.pi*2000*t) + 2*np.cos(2*np.pi*4000*t) + 3*np.cos(2*np.pi*6000*t)
+
+    return t, x
+
+
+# 

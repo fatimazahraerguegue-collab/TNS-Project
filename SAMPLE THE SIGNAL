@@ -1,0 +1,11 @@
+# 2. SAMPLE THE SIGNAL
+# ============================================================
+
+def sample_signal(t, x, fs=8000):
+    Ts = 1.0 / fs
+    n = np.arange(0, t[-1], Ts)
+    xs = np.interp(n, t, x)
+    return n, xs
+
+
+# 
